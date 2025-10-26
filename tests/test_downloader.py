@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from src.downloader import download_space
+from src.downloader import download_space, DownloadError
 
 
 def test_download_space_basic(tmp_path):
@@ -83,3 +83,22 @@ def test_download_space_ytdlp_configuration(tmp_path):
         assert len(call_args['postprocessors']) > 0
         assert call_args['postprocessors'][0]['key'] == 'FFmpegExtractAudio'
         assert call_args['postprocessors'][0]['preferredcodec'] == 'mp3'
+
+
+def test_download_space_error_handling(tmp_path):
+    """Test that download errors are properly caught and wrapped."""
+    space_url = "https://x.com/i/spaces/invalid"
+
+    with patch('src.downloader.yt_dlp.YoutubeDL') as mock_ytdl_class:
+        mock_ytdl = Mock()
+        mock_ytdl_class.return_value.__enter__.return_value = mock_ytdl
+        mock_ytdl.extract_info.side_effect = Exception("Video unavailable")
+
+        with pytest.raises(DownloadError) as exc_info:
+            download_space(
+                space_url=space_url,
+                output_dir=str(tmp_path),
+                cookies_file=None
+            )
+
+        assert "Failed to download" in str(exc_info.value)

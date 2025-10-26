@@ -4,6 +4,11 @@ from typing import Optional
 from src.validator import validate_space_url
 
 
+class DownloadError(Exception):
+    """Raised when download fails."""
+    pass
+
+
 def download_space(
     space_url: str,
     output_dir: str,
@@ -19,6 +24,9 @@ def download_space(
 
     Returns:
         Path to the downloaded MP3 file
+
+    Raises:
+        DownloadError: If download fails
     """
     # Extract space ID from URL using validator for robustness
     is_valid, space_id, error_message = validate_space_url(space_url)
@@ -45,8 +53,11 @@ def download_space(
         ydl_opts['cookiefile'] = cookies_file
 
     # Download with yt-dlp
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.extract_info(space_url, download=True)
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.extract_info(space_url, download=True)
+    except Exception as e:
+        raise DownloadError(f"Failed to download Space: {str(e)}")
 
     # Return the expected output path
     return os.path.join(output_dir, f'space_{space_id}.mp3')
