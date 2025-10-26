@@ -1,6 +1,7 @@
 import os
 import yt_dlp
 from typing import Optional
+from src.validator import validate_space_url
 
 
 def download_space(
@@ -19,8 +20,13 @@ def download_space(
     Returns:
         Path to the downloaded MP3 file
     """
-    # Extract space ID from URL for filename
-    space_id = space_url.split('/')[-1]
+    # Extract space ID from URL using validator for robustness
+    is_valid, space_id, error_message = validate_space_url(space_url)
+    if not is_valid:
+        raise ValueError(f"Invalid space URL: {error_message}")
+
+    if space_id is None:
+        raise ValueError("Could not extract space ID from URL")
 
     # Configure yt-dlp options
     ydl_opts = {
