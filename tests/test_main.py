@@ -68,6 +68,9 @@ def test_cli_with_cookies(tmp_path):
         ])
 
         assert result.exit_code == 0
-        mock_download.assert_called_once()
-        # Check that cookies file was passed as third positional argument
-        assert mock_download.call_args[0][2] == str(cookies_file)
+        # Verify the call was made with correct arguments including cookies_file
+        mock_download.assert_called_once_with(
+            'https://x.com/i/spaces/1ZkKzZWnVRRKv',
+            '.',
+            str(cookies_file)
+        )
