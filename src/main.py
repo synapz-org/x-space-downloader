@@ -1,5 +1,6 @@
 import click
 import os
+from click.exceptions import Exit
 from src.validator import validate_space_url
 from src.downloader import download_space, DownloadError
 
@@ -19,7 +20,7 @@ def cli(url, cookies, output):
     is_valid, space_id, error = validate_space_url(url)
     if not is_valid:
         click.echo(f"Error: {error}", err=True)
-        raise click.Exit(1)
+        raise Exit(1)
 
     # Download the Space
     try:
@@ -28,7 +29,7 @@ def cli(url, cookies, output):
         click.echo(f"Successfully downloaded to: {output_path}")
     except DownloadError as e:
         click.echo(f"Error: {str(e)}", err=True)
-        raise click.Exit(2)
+        raise Exit(2)
 
 
 if __name__ == '__main__':
