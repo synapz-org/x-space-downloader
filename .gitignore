@@ -26,3 +26,13 @@ htmlcov/
 *.mp3
 *.m4a
 cookies.txt
+
+# Downloaded outputs (artifacts, not source)
+*.mp4
+*.mov
+*.wav
+*.txt
+!requirements*.txt
+space_*.json
+space_*.txt
+.DS_Store
